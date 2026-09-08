@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестирование FlowerBloom</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 40px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #e91e63;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+        
+        .test-group {
+            background: #252541;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .group-title {
+            background: #1e1e3a;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffb6c1;
+            border-left: 4px solid #e91e63;
+        }
+        
+        .test-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid #3a3a5a;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .test-status {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .pass {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .fail {
+            background: #e91e63;
+            color: white;
+        }
+        
+        .test-name {
+            flex: 1;
+            color: #ddd;
+        }
+        
+        .test-detail {
+            color: #888;
+            font-size: 0.8rem;
+        }
+        
+        .run-all-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-bottom: 30px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .run-all-btn:hover {
+            background: #45a049;
+        }
+        
+        .summary {
+            background: #1e1e3a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .summary h3 {
+            color: #ffb6c1;
+            margin-bottom: 15px;
+        }
+        
+        .summary-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .stat-value.pass { color: #4caf50; }
+        .stat-value.fail { color: #e91e63; }
+        
+        .full-pass {
+            background: #4caf50;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌸 FlowerBloom - Тестирование 🌸</h1>
+        <div class="subtitle">Проверка работоспособности магазина цветов</div>
+        
+        <button class="run-all-btn" onclick="runAllTests()">▶ Запустить все тесты</button>
+        
+        <div id="testsContainer"></div>
+        
+        <div class="summary" id="summary" style="display: none;">
+            <h3>📊 Результаты тестирования</h3>
+            <div class="summary-stats">
+                <div>
+                    <div class="stat-value" id="totalCount">0</div>
+                    <div>Всего тестов</div>
+                </div>
+                <div>
+                    <div class="stat-value pass" id="passedCount">0</div>
+                    <div>✅ Пройдено</div>
+                </div>
+                <div>
+                    <div class="stat-value fail" id="failedCount">0</div>
+                    <div>❌ Не пройдено</div>
+                </div>
+            </div>
+            <div id="fullPassMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== ФУНКЦИИ ДЛЯ ТЕСТИРОВАНИЯ (те же, что на сайте) ==========
+        
+        function validateEmail(email) {
+            return /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(email);
+        }
+        
+        function validatePassword(password) {
+            return password.length >= 6;
+        }
+        
+        function validateName(name) {
+            return name.trim().length >= 2;
+        }
+        
+        // Цвета из вашего каталога
+        const FLOWERS = [
+            { id: 1, name: "Алые розы", price: 2500 },
+            { id: 2, name: "Нежные пионы", price: 3200 },
+            { id: 3, name: "Солнечные подсолнухи", price: 1800 },
+            { id: 4, name: "Белые лилии", price: 2900 },
+            { id: 5, name: "Тюльпаны", price: 1500 },
+            { id: 6, name: "Орхидея", price: 4500 },
+            { id: 7, name: "Гортензии", price: 3800 },
+            { id: 8, name: "Хризантемы", price: 2200 },
+            { id: 9, name: "Ирисы", price: 1900 },
+            { id: 10, name: "Лаванда", price: 1700 },
+            { id: 11, name: "Ромашки", price: 1200 },
+            { id: 12, name: "Эустома", price: 3500 }
+        ];
+        
+        // ========== ТЕСТЫ ==========
+        
+        const tests = [
+            // Тесты для email
+            { name: "Валидация email: test@mail.com", func: () => validateEmail("test@mail.com"), expected: true },
+            { name: "Валидация email: test@ (без домена)", func: () => validateEmail("test@"), expected: false },
+            { name: "Валидация email: test.mail.com (без @)", func: () => validateEmail("test.mail.com"), expected: false },
+            { name: "Валидация email: пустая строка", func: () => validateEmail(""), expected: false },
+            
+            // Тесты для пароля
+            { name: "Валидация пароля: 123456 (6 символов)", func: () => validatePassword("123456"), expected: true },
+            { name: "Валидация пароля: 12345 (5 символов)", func: () => validatePassword("12345"), expected: false },
+            { name: "Валидация пароля: пустой пароль", func: () => validatePassword(""), expected: false },
+            
+            // Тесты для имени
+            { name: "Валидация имени: Анна (2+ символа)", func: () => validateName("Анна"), expected: true },
+            { name: "Валидация имени: А (1 символ)", func: () => validateName("А"), expected: false },
+            { name: "Валидация имени: пустое имя", func: () => validateName(""), expected: false },
+            
+            // Тесты для каталога
+            { name: "Каталог содержит 12 цветов", func: () => FLOWERS.length === 12, expected: true },
+            { name: "У всех цветов есть имя", func: () => FLOWERS.every(f => f.name && f.name.length > 0), expected: true },
+            { name: "У всех цветов цена > 0", func: () => FLOWERS.every(f => f.price > 0), expected: true },
+            { name: "Id цветов уникальны", func: () => {
+                const ids = FLOWERS.map(f => f.id);
+                return ids.length === new Set(ids).size;
+            }, expected: true }
+        ];
+        
+        function runAllTests() {
+            let passed = 0;
+            let failed = 0;
+            let resultsHtml = '';
+            
+            // Группируем тесты
+            const groups = {
+                '📧 Валидация email': tests.slice(0, 4),
+                '🔐 Валидация пароля': tests.slice(4, 7),
+                '👤 Валидация имени': tests.slice(7, 10),
+                '🌸 Каталог цветов': tests.slice(10, 14)
+            };
+            
+            for (const [groupName, groupTests] of Object.entries(groups)) {
+                let groupHtml = `<div class="test-group"><div class="group-title">${groupName}</div>`;
+                
+                for (const test of groupTests) {
+                    const result = test.func();
+                    const isPassed = result === test.expected;
+                    
+                    if (isPassed) passed++;
+                    else failed++;
+                    
+                    groupHtml += `
+                        <div class="test-item">
+                            <div class="test-status ${isPassed ? 'pass' : 'fail'}">
+                                ${isPassed ? '✓' : '✗'}
+                            </div>
+                            <div class="test-name">
+                                ${test.name}
+                                <div class="test-detail">
+                                    ${isPassed ? '✅ Тест пройден' : `❌ Ожидалось: ${test.expected}, Получено: ${result}`}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                groupHtml += `</div>`;
+                resultsHtml += groupHtml;
+            }
+            
+            document.getElementById('testsContainer').innerHTML = resultsHtml;
+            
+            const summary = document.getElementById('summary');
+            summary.style.display = 'block';
+            document.getElementById('totalCount').innerText = passed + failed;
+            document.getElementById('passedCount').innerText = passed;
+            document.getElementById('failedCount').innerText = failed;
+            
+            const fullPassMessage = document.getElementById('fullPassMessage');
+            if (failed === 0) {
+                fullPassMessage.innerHTML = '<div class="full-pass">🎉 ПОЗДРАВЛЯЮ! Все тесты пройдены успешно! 🎉</div>';
+            } else {
+                fullPassMessage.innerHTML = `<div style="color:#e91e63; margin-top:15px;">⚠️ Найдено ${failed} ошибок. Исправьте их!</div>`;
+            }
+        }
+        
+        // Автоматический запуск при загрузке страницы
+        window.onload = runAllTests;
+    </script>
+</body>
+</html>
